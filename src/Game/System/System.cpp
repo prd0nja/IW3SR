@@ -38,13 +38,10 @@ namespace IW3SR
 		{
 		case WM_INPUT:
 			Mouse::Process(msg, lParam);
+			Keyboard::Process(msg, lParam);
 			break;
 
 		case WM_CHAR:
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
 			Keyboard::Process(msg, wParam);
 			break;
 		}
