@@ -109,9 +109,8 @@ namespace IW3SR
 	HMODULE GSystem::LoadDLLExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
 	{
 		const HMODULE mod = LoadLibraryExW_h(lpLibFileName, hFile, dwFlags);
-		if (!mod || !lpLibFileName)
-			return mod;
 		const std::string name = std::filesystem::path(lpLibFileName).filename().string();
+
 		if (name.starts_with("cod4x"))
 			Patch::CoD4X(mod);
 		return mod;
