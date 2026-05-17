@@ -133,12 +133,29 @@ namespace IW3SR::Addons
 		if (UseBhopToggle && KeyBhopToggle.IsPressed())
 			BhopToggled = !BhopToggled;
 
-		if (UseBhop && (cmd->buttons & BUTTON_JUMP))
+		if (UseBhop)
 		{
 			usercmd_s* oldcmd = &clients->cmds[clients->cmdNumber - 1 & 0x7F];
-			if (cmd->buttons & BUTTON_JUMP && oldcmd->buttons & BUTTON_JUMP)
-				cmd->buttons -= BUTTON_JUMP;
+			static bool wasActive = false;
+			static unsigned int downTime = 0;
+			const bool active = playersKb[KB_MOVEUP].active;
+
+			if (active && !wasActive)
+				downTime = static_cast<unsigned int>(com_frameTime);
+			wasActive = active;
+
+			if (active && static_cast<unsigned int>(com_frameTime) - downTime >= 200
+				&& !(cmd->buttons & BUTTON_JUMP)
+				&& ps->viewHeightTarget == 60
+				&& !(ps->pm_flags & PMF_DUCKED))
+			{
+				cmd->buttons |= BUTTON_JUMP;
+			}
+
+			if ((cmd->buttons & BUTTON_JUMP) && (oldcmd->buttons & BUTTON_JUMP))
+				cmd->buttons &= ~BUTTON_JUMP;
 		}
+
 		if (BhopToggled && PMove::OnGround())
 		{
 			cmd->buttons |= BUTTON_JUMP;
