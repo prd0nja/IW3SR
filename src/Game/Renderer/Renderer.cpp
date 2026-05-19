@@ -92,14 +92,18 @@ namespace IW3SR
 
 	HRESULT GRenderer::Reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* pPresentationParameters)
 	{
-		GPUResource::NotifyDeviceLost();
+		HRESULT hr = device->TestCooperativeLevel();
+		if (hr != D3D_OK && hr != D3DERR_DEVICENOTRESET)
+			return IDirect3DDevice9_Reset_h(device, pPresentationParameters);
+
+		GPUResource::NotifyBeforeReset();
 		ImGui_ImplAPI_InvalidateDeviceObjects();
-		HRESULT hr = IDirect3DDevice9_Reset_h(device, pPresentationParameters);
+		hr = IDirect3DDevice9_Reset_h(device, pPresentationParameters);
 
 		if (SUCCEEDED(hr))
 		{
 			DX9GraphicsContext::PresentParameters = *pPresentationParameters;
-			GPUResource::NotifyDeviceReset();
+			GPUResource::NotifyAfterReset();
 			ImGui_ImplAPI_CreateDeviceObjects();
 		}
 		return hr;
